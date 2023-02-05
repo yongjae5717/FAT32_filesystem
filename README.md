@@ -6,7 +6,7 @@
 - Main 함수 및 동작확인
 
 ### Boot Record
-![](images/BootRecord.png)
+![](file_system/images/BootRecord.png)
 
 - Boot Record 정보: 0x60 bytes
 - Bytes Per Sector(11~12): 저장장치의 입출력 단위 섹터 Byte 크기 (일반적으로 0x200)
@@ -78,7 +78,7 @@ def to_be(byte_array):
 </details>
 
 ### FAT Area
-![](images/FatArea.png)
+![](file_system/images/FatArea.png)
 
 - Data Area의 각 클러스터의 사용여부를 확인하기 위함
 - 데이터가 여러 클러스터로 분할되어 저장되면 클러스터 체인으로 표현된다.
@@ -162,7 +162,7 @@ class ClusterChain:
 </details>
 
 ### Data Area
-![](images/DataArea.png)
+![](file_system/images/DataArea.png)
 
 - File의 실제 데이터 저장 위치
 - Directory인 경우 내부 File의 메타 데이터를 저장하는 Directory Entry 저장
@@ -337,12 +337,11 @@ class NodeMgmt:
 ### Main 함수 및 동작 확인
 - 메인화면 실행(특정 경로파일만 가져오기)
   - 입력
-![](images/input1.png)
+  ![](file_system/images/input1.png)
   - 출력
-![](images/output1.png)
-  
+  ![](file_system/images/output1.png)
 - 메인화면 실행(전체 파일 가져오기)
   - 입력
-![](images/input2.png)
+  ![](file_system/images/input2.png)
   - 출력
-![](images/output2.png)
+  ![](file_system/images/output2.png)
