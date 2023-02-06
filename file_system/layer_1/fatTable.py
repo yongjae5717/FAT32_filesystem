@@ -1,4 +1,4 @@
-from endian import to_be
+from file_system.layer_function.byteBuffer import *
 
 
 class fat_table:
@@ -17,5 +17,8 @@ class fat_table:
             flag += 1
             offset += 4
 
-            be_byte_array = to_be(byte_array)
+            buffer = ByteBuffer(byte_array)
+
+            be_byte_array = buffer.get_uint4_be()
             self.fat_table_list.append(be_byte_array)
+
