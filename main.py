@@ -1,5 +1,5 @@
 import sys
-from file_system.Interface.dataStore import *
+from file_system.Interface.data_store import *
 
 
 def main():

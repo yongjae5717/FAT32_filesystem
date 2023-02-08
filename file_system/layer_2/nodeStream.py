@@ -1,4 +1,4 @@
-from file_system.layer_1.DirectoryEntry import *
+from file_system.layer_1.directoryEntry import *
 from file_system.layer_1.bootRecord import *
 from file_system.layer_1.fatTable import *
 from file_system.layer_2.cluster_chain import *
@@ -6,8 +6,8 @@ from file_system.layer_2.cluster_chain import *
 
 class NodeStream:
     def __init__(self, filename):
-        self.bootRecord = Boot_Record(filename)
-        self.fatTable = fat_table(self.bootRecord)
+        self.bootRecord = BootRecord(filename)
+        self.fatTable = FatTable(self.bootRecord)
         self.dir_pre = DirectoryEntry(self.bootRecord)
         self.bootRecord.make_boot_record()
         self.fatTable.make_fat_table()
@@ -29,7 +29,7 @@ class NodeStream:
 
             elif data.attribute == 32:
                 self.path += data.name + "." + data.extension
-                cluster_n = cluster_chain(self.fatTable, self.bootRecord, data.first_cluster)
+                cluster_n = ClusterChain(self.fatTable, self.bootRecord, data.first_cluster)
                 cluster_n.make_cluster_list()
                 # cluster_n = cluster_chain(self.fatTable.fat_table_list, data.first_cluster, self.bootRecord.data_region,
                 #                           self.bootRecord.cluster_num_of_root_dir, self.bootRecord.cluster_size)

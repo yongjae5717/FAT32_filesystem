@@ -12,5 +12,5 @@ class File:
         destination_dir = os.path.join(exportPath, path[1:])
 
         for dir_offset, cluster_size in data:
-            byte_array += ReadFile(filename, dir_offset, cluster_size)
-        WriteFile(destination_dir, byte_array)
+            byte_array += read_file(filename, dir_offset, cluster_size)
+        write_file(destination_dir, byte_array)

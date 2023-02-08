@@ -3,6 +3,7 @@
 import unittest
 from byte_buffer2 import *
 
+
 class TestByteBuffer2(unittest.TestCase):
     def setUp(self):
         self.t1 = b'\x11\x22\x33\x44'

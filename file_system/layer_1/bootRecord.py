@@ -1,8 +1,8 @@
-from file_system.layer_function.byteBuffer import *
+from file_system.layer_function.byte_buffer import *
 from file_system.layer_function.file_io import *
 
 
-class Boot_Record:
+class BootRecord:
     def __init__(self, filename):
         self.filename = filename
         self.num_of_byte_per_sector = 0
@@ -18,7 +18,7 @@ class Boot_Record:
         self.fat_area_size = 0
 
     def make_boot_record(self):
-        byte_array = ReadFile(self.filename, hex(0), hex(512))
+        byte_array = read_file(self.filename, hex(0), hex(512))
         buffer = ByteBuffer(byte_array)
         buffer.jump(11)
         self.num_of_byte_per_sector = buffer.get_uint2_le()

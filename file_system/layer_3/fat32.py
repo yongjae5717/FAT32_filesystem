@@ -1,11 +1,12 @@
 from file_system.layer_2.nodeStream import *
 from file_system.layer_2.node import *
 
+
 class Fat32:
     def __init__(self, filename):
         self.filename = filename
-        self.bootRecord = Boot_Record(filename)
-        self.fatTable = fat_table(self.bootRecord)
+        self.bootRecord = BootRecord(filename)
+        self.fatTable = FatTable(self.bootRecord)
         self.dir_pre = DirectoryEntry(self.bootRecord)
 
     def BuildFileSystem(self):

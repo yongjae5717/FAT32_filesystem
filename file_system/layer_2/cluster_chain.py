@@ -1,4 +1,4 @@
-class cluster_chain:
+class ClusterChain:
     def __init__(self, fatTable, bootRecord, first_cluster):
         self.fatTable = fatTable
         self.bootRecord = bootRecord

@@ -1,4 +1,4 @@
-def ReadFile(filename, seek_offset, size):
+def read_file(filename, seek_offset, size):
     res = bytearray()
     with open(filename, 'rb') as f:
         f.seek(int(seek_offset, 16))
@@ -6,6 +6,6 @@ def ReadFile(filename, seek_offset, size):
     return res
 
 
-def WriteFile(destination_dir, byte_array):
+def write_file(destination_dir, byte_array):
     with open(destination_dir, "wb") as f:
         f.write(byte_array)

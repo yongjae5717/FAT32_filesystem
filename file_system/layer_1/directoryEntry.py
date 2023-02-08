@@ -1,4 +1,4 @@
-from file_system.layer_function.byteBuffer import *
+from file_system.layer_function.byte_buffer import *
 from file_system.layer_function.file_io import *
 
 
@@ -10,7 +10,7 @@ class DirectoryEntry:
     def data_area(self, dir_offset):
         offset = dir_offset
         while True:
-            byte_array = ReadFile(self.br.filename, hex(offset), hex(32))
+            byte_array = read_file(self.br.filename, hex(offset), hex(32))
             offset += 32
 
             if byte_array == bytearray (
