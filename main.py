@@ -13,8 +13,8 @@ def main():
 
     data_store = DataStore(filename)
     file_system = data_store.BuildFileSystem()
-    file = file_system.GetNode(filepath)
-    file.ExportTo(filename, exportPath)
+    file = file_system.get_node(filepath)
+    file.export_to(filename, exportPath)
 
 
 if __name__ == "__main__":

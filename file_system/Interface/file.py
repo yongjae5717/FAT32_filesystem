@@ -6,7 +6,7 @@ class File:
     def __init__(self, node):
         self.file = node
 
-    def ExportTo(self, filename, exportPath):
+    def export_to(self, filename, exportPath):
         byte_array = bytearray()
         path, data = self.file.data
         destination_dir = os.path.join(exportPath, path[1:])
