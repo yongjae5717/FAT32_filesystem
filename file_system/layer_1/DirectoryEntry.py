@@ -21,7 +21,6 @@ class DirectoryEntry:
     def fat32_data_area(self, byte_array):
             buffer = ByteBuffer(byte_array)
             DirElements = self.make_dirEntryElements (buffer)
-            print(DirElements.name, DirElements.dir_offset, DirElements.attribute)
             self.data_area_list.append(DirElements)
 
     def make_dirEntryElements(self, buffer):

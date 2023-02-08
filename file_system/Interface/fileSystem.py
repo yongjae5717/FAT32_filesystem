@@ -9,7 +9,6 @@ class FileSystem:
         node = self.file_system.head
         while node.next:
             path, data = node.data
-            print(path, filePath)
             if data and path == filePath:
                 return File(node)
             node = node.next
