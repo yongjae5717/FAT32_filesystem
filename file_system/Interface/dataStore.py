@@ -7,5 +7,6 @@ class DataStore:
         self.filename = filename
 
     def BuildFileSystem(self):
-        fs = Fat32(self.filename).BuildFileSystem()
-        return FileSystem(fs)
+        fs = Fat32(self.filename)
+        file_system = fs.BuildFileSystem()
+        return FileSystem(file_system)

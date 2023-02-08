@@ -1,19 +1,22 @@
 from file_system.layer_function.byteBuffer import *
+from file_system.layer_function.file_io import *
 
 
 class fat_table:
-    def __init__(self, filename, br):
-
+    def __init__(self, br):
+        self.br = br
         self.fat_table_list = list()
 
-        offset = br.fat_region
-        finish_count = br.num_of_sector_FAT_area // 4 + 1
+    def make_fat_table(self):
 
+        offset = self.br.fat_region
+        finish_count = self.br.num_of_sector_FAT_area // 4 + 1
         flag = 0
+        self.repeat_offset_4(offset, finish_count, flag)
+
+    def repeat_offset_4(self, offset, finish_count, flag):
         while flag != finish_count:
-            with open(filename, 'rb') as f:
-                f.seek(offset)
-                byte_array = f.read(4)
+            byte_array = ReadFile(self.br.filename, hex(offset), hex(4))
             flag += 1
             offset += 4
 

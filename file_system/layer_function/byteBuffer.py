@@ -53,6 +53,12 @@ class ByteBuffer:
         self.m_offset += 2
         return r
 
+    def get_data1(self):
+        s = self.m_offset
+        r = self.m_data[s:s+1]
+        self.m_offset += 1
+        return unpack('>B', r)[0]
+
     def get_ascii(self, index):
         # index = self.m_data.find(b'\x00', self.m_offset)
         if index == -1:
