@@ -1,4 +1,4 @@
-from file_system.Interface.file import *
+from fat32.interface.file import *
 
 
 class FileSystem:

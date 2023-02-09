@@ -3,14 +3,14 @@ from file_system.layer_function.file_io import *
 
 
 class DirectoryEntry:
-    def __init__(self, br):
+    def __init__(self, boot_record):
         self.data_area_list = list()
-        self.br = br
+        self.boot_record = boot_record
 
     def data_area(self, dir_offset):
         offset = dir_offset
         while True:
-            byte_array = read_file(self.br.filename, hex(offset), hex(32))
+            byte_array = read_file(self.boot_record.filename, hex(offset), hex(32))
             offset += 32
 
             if byte_array == bytearray (
@@ -33,10 +33,10 @@ class DirectoryEntry:
         cluster_low = buffer.get_data2()
         first_cluster_buffer = ByteBuffer (cluster_low + cluster_high)
         first_cluster = first_cluster_buffer.get_uint4_le ()
-        dir_offset = self.br.data_region + ((first_cluster - self.br.cluster_num_of_root_dir) * self.br.cluster_size)
+        dir_offset = self.boot_record.data_region + ((first_cluster - self.boot_record.cluster_num_of_root_dir) * self.boot_record.cluster_size)
         file_size = buffer.get_uint4_le ()
-        DirElements = DirectoryEntryElements (name, attribute, first_cluster, dir_offset, file_size, extension)
-        return DirElements
+        dir_elements = DirectoryEntryElements (name, attribute, first_cluster, dir_offset, file_size, extension)
+        return dir_elements
 
 
 class DirectoryEntryElements:

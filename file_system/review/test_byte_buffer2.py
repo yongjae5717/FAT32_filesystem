@@ -38,5 +38,6 @@ class TestByteBuffer2(unittest.TestCase):
         r0 = bb.get_utf16_le(4)
         self.assertEqual(r0, ' Inf')
 
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,5 @@
-from file_system.layer_2.node import *
-from file_system.layer_function.file_io import *
+from fat32.layer_2.domain.node import *
+from fat32.function.fileIo import *
 
 
 class File:
