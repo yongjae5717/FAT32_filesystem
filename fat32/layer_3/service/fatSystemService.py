@@ -14,6 +14,6 @@ class FatSystemService:
         self.boot_record = self.boot_record_service.make_boot_record ()
         self.fat_table = self.fat_table_service.make_fat_table (self.boot_record)
         self.directory_entry = self.directory_entry_service.make_data_area (self.boot_record, self.boot_record.data_region)
-        self.node_stream = self.node_stream_service.make_node_stream (self.boot_record, self.fat_table, self.directory_entry,
+        self.node = self.node_stream_service.make_node_stream (self.boot_record, self.fat_table, self.directory_entry,
                                                             self.node_stream_service.node_stream.path)
-        return self.node_stream
+        return self.node

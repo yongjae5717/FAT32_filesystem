@@ -12,4 +12,5 @@ class FileSystem:
             if data and path == filePath:
                 return File(node)
             node = node.next
-        return -1
+        print(f'catch FileNotFoundError exception, Please check file path: {filePath}')
+        exit()

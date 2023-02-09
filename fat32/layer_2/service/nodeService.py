@@ -1,28 +1,26 @@
 import os
+from fat32.function.fileIo import *
+from fat32.layer_2.domain.node import *
 
 
-class Node:
-    def __init__(self, data, next=None):
-        self.data = data
-        self.next = next
+class NodeService:
+    def __init__(self):
+        self.node_mgmt = NodeMgmt(data=None)
 
-
-class NodeMgmt:
-    def __init__(self, data):
-        self.head = Node(data)
-        self.path = ""
+    def set_node_mgmt(self, data):
+        self.node_mgmt = NodeMgmt(data)
 
     def add(self, data):
-        if self.head == "":
-            self.head = Node(data)
+        if self.node_mgmt.head == "":
+            self.node_mgmt.head = Node(data)
         else:
-            node = self.head
+            node = self.node_mgmt.head
             while node.next:
                 node = node.next
             node.next = Node(data)
 
     def all_files_export(self, filename, exportPath):
-        node = self.head
+        node = self.node_mgmt.head
         while node.next:
             path, data = node.data
             destination_dir = os.path.join(exportPath,  path[1:])
@@ -31,16 +29,13 @@ class NodeMgmt:
             elif data:
                 byte_array = bytearray()
                 for dir_offset, cluster_size in data:
-                    with open(filename, 'rb') as f:
-                        f.seek(int(dir_offset, 16))
-                        byte_array += f.read(int(cluster_size, 16))
-                    with open(destination_dir, "wb") as f:
-                        f.write(byte_array)
+                    byte_array += read_file (filename, dir_offset, cluster_size)
+                    write_file(destination_dir, byte_array)
 
             node = node.next
 
     def selected_file_export(self, filename, dataPath, exportPath):
-        node = self.head
+        node = self.node_mgmt.head
         while node.next:
             path, data = node.data
             destination_dir = os.path.join(exportPath,  path[1:])
@@ -50,11 +45,8 @@ class NodeMgmt:
             elif data and path == dataPath:
                 byte_array = bytearray()
                 for dir_offset, cluster_size in data:
-                    with open(filename, 'rb') as f:
-                        f.seek(int(dir_offset, 16))
-                        byte_array += f.read(int(cluster_size, 16))
-                with open(destination_dir, "wb") as f:
-                    f.write(byte_array)
+                    byte_array += read_file(filename, dir_offset, cluster_size)
+                write_file(destination_dir, byte_array)
                 break
 
             node = node.next
