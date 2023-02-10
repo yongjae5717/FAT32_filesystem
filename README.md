@@ -1,9 +1,42 @@
 # FAT32
 ## 구조
+- Architecture
 - Boot Record
 - FAT Area (Cluster Chain)
 - Data Area (Directory Entry)
 - Main 함수 및 동작확인
+
+### Architecture
+- FAT32
+  - function (common)
+    - [byteBuffer](): 데이터를 한 곳에서 다른 한 곳으로 전송하는 동안 일시적으로 그 데이터를 보관하는 임시 메모리 공간이다.
+    - [fileIO](): 파일을 'rb', 즉 byte로된 파일을 읽거나 'wb' byte로 된 파일을 쓰기위한 function이다. (이때, seek과 read를 사용)
+  - interface
+    - [dataStore](): filename을 input으로 갖고 FileSystem으로 변환해주는 클래스로, 이때 파일과 디렉토리를 갖고 있는 정상적인 node를 FileSystem에 전달해준다.
+    - [file](): fileSystem의 get_node함수를 통하여 filePath의 해당 노드를 return 받으며 해당 노드의 데이터와 경로를 가지고 사용자의 시스템 경로에 해당하는 곳에 export 해줄 수 있다.
+    - [fileSystem](): root_mgmt를 input으로 갖고 filePath를 통하여 해당 노드를 return해주는 get_node함수를 호출할 수 있다.
+  - layer_1
+    - domain
+      - [bootRecord](): FAT32파일의 bootRecord의 속성을 알려주는 객체이다.
+      - [directoryEntry](): directoryEntryElements의 집합 객체이다.
+      - [directoryEntryElements](): dir_offset을 통해 만들어 낸 데이터의 속성을 가진 객체이다.
+      - [fatTable](): 데이터 영역의 클러스터 할당 상태를 알려주는 테이블 객체이다.
+    - service (모두 filename을 input으로 가진다.)
+      - [bootRecordService](): bootRecord 객체를 control할 수 있는 서비스 객체이다.
+      - [directoryEntryService](): directoryEntry 객체를 control할 수 있는 서비스 객체이다.
+      - [fatTableService](): fatTable 객체를 control할 수 있는 서비스 객체이다.
+  - layer_2
+    - domain
+      - [clusterChain](): 하나의 파일이 할당하는 클러스터의 양과 (클러스터의 offset, size)를 관리하기 위한 객체이다.
+      - [node](): 노드를 구성하는 속성을 알려주는 객체이다.
+      - [nodeStream](): 노드관리와 path를 관리하는 속성을 가진 객체이다.
+    - service
+      - [clusterChainService](): clusterChain 객체를 control하는 서비스 객체이다.
+      - [nodeService](): node 객체를 control하는 서비스 객체
+      - [nodeStreamService](): nodeStream객체를 control하는 서비스 객체
+  - layer_3
+    - service
+      - [fatSystemService](): layer1, 2에 있는 서비스를 통하여 전반적인 fat 파일과 디렉토리를 구성하는 Node를 생성해주는 서비스 객체이다.
 
 ### Boot Record
 ![](fat32/images/BootRecord.png)
@@ -22,60 +55,6 @@
     - FAT Area Size = Num of FAT(16) * (num_of_sector_FAT_area(36~39) * Bytes Per Sector(11~12))
   - Data Area Offset = FAT #1 Offset(FAT영역의 시작 주소) + FAT Area Size
 
-<details>
-<summary>Boot Record, Endian Class</summary>
-<div>
-
-- Boot Record.py
-```python
-from endian import to_le
-
-
-class Boot_Record:
-    def __init__(self, filename):
-        with open(filename, 'rb') as f:
-            byte_array = f.read(512)
-
-        self.num_of_FAT_area = int(byte_array[16])
-        self.num_of_byte_per_sector = int(to_le(byte_array[11:13]), 16)
-        self.num_of_sector_per_cluster = int(byte_array[13])
-        self.num_of_sector_reserved = int(to_le(byte_array[14:16]), 16)
-        self.num_of_sector_FAT_area = int(to_le(byte_array[36:40]), 16)
-        self.cluster_num_of_root_dir = int(to_le(byte_array[44:48]), 16)
-        self.fat_region = self.num_of_sector_reserved * self.num_of_byte_per_sector
-        self.data_region = self.fat_region + (self.num_of_FAT_area * self.num_of_sector_FAT_area * self.num_of_byte_per_sector)
-        self.cluster_size = self.num_of_byte_per_sector * self.num_of_sector_per_cluster
-        self.fat_size = self.num_of_sector_FAT_area * self.num_of_byte_per_sector
-        self.fat_area_size = self.fat_size * self.num_of_FAT_area
-
-```
-
-- endian.py
-```python
-# 리틀앤디언
-def to_le(byte_array):
-    result = ""
-    for b in byte_array[::-1]:
-        temp = str(hex(b)[2:])
-        if len(temp) == 1:
-            temp = "0" + temp
-        result += temp
-    return result
-
-
-# 빅앤디언
-def to_be(byte_array):
-    result = ""
-    for b in byte_array:
-        temp = str(hex(b)[2:])
-        if len(temp) == 1:
-            temp = "0" + temp
-        result += temp
-    return result
-
-```
-</div>
-</details>
 
 ### FAT Area
 ![](fat32/images/FatArea.png)
@@ -93,73 +72,6 @@ def to_be(byte_array):
 |0xFFFFFF7|사용할수없는 Bad Cluster|
 |0xFFFFFF8 ~ 0xFFFFFFF| EOF|
 
-
-<details>
-<summary>Fat Class, Cluster Rule Class, Cluster Chain Class</summary>
-<div>
-
-- fat.py
-```python
-from endian import to_be
-
-
-class fat_table:
-    def __init__(self, filename, br):
-
-        self.fat_table_list = list()
-
-        offset = br.fat_region
-        finish_count = br.num_of_sector_FAT_area // 4 + 1
-
-        flag = 0
-        while flag != finish_count:
-            with open(filename, 'rb') as f:
-                f.seek(offset)
-                byte_array = f.read(4)
-            flag += 1
-            offset += 4
-
-            be_byte_array = to_be(byte_array)
-            self.fat_table_list.append(be_byte_array)
-
-```
-
-- cluster_rule.py
-```python
-from cluster_chain import ClusterChain
-
-
-class cluster_rule:
-    def __init__(self, fatTable, first_cluster, dir_offset, cluster_num_of_root_dir, cluster_size):
-        self.cluster_num = first_cluster
-        self.cluster_list = list()
-        cluster_chain = ClusterChain()
-        while True:
-            if self.cluster_num == len(fatTable):
-                break
-            if fatTable[self.cluster_num] in cluster_chain.eof:
-                break
-            if fatTable[self.cluster_num] == cluster_chain.bad_cluster:
-                continue
-            cluster_offset = dir_offset + (self.cluster_num - cluster_num_of_root_dir) * cluster_size
-            if int('0x0000002', 0) <= self.cluster_num + 1 <= int('0xfffffef', 0):
-                self.cluster_list.append((hex(cluster_offset), hex(cluster_size)))
-            self.cluster_num += 1
-
-```
-
-- cluster_chain.py
-```python
-class ClusterChain:
-    def __init__(self):
-        self.free_cluster = '0x0000000'
-        self.reserved_cluster = list(hex(i) for i in range(int('0xffffff0', 0), int('0xffffff6', 0) + 1))
-        self.bad_cluster = '0xffffff7'
-        self.eof = list(hex(i) for i in range(int('0xffffff8', 0), int('0xfffffff', 0) + 1))
-```
-
-</div>
-</details>
 
 ### Data Area
 ![](fat32/images/DataArea.png)
@@ -188,151 +100,6 @@ class ClusterChain:
   - First Cluster Low: 26 ~ 27
   - First_cluster: First Cluster Low + First Cluster High의 리틀엔디안
   - File Size: 28 ~ 31 (디렉토리의 경우 항상 0, 최대 크기는 4GB)
-
-<details>
-<summary>DirFileRead Class, DirPrepare Class, FileManage Class, Node Class</summary>
-<div>
-
-- DirFileRead Class
-```python
-from dir_prepare import dir_prepare
-from cluster_rule import cluster_rule
-
-
-class DirFileRead:
-    def __init__(self, filename, br, dir_pre, fatTable, node_path, root_mgmt):
-        for data in dir_pre.result_list:
-            self.path = node_path
-            if data.first_cluster >= len(fatTable.fat_table_list):
-                continue
-
-            if data.attribute == 16:
-                self.path += str(data.name)[2:][:-1]
-                if self.path[-1] == ".":
-                    continue
-                dir_pre = dir_prepare(filename, br, data.dir_offset)
-                root_mgmt.add([self.path, []])
-                DirFileRead(filename, br, dir_pre, fatTable, self.path + "/", root_mgmt)
-
-            elif data.attribute == 32:
-                self.path += str(data.name)[2:][:-1] + "." + str(data.extension)[2:][:-1]
-                cluster_n = cluster_rule(fatTable.fat_table_list, data.first_cluster, br.data_region,
-                                         br.cluster_num_of_root_dir, br.cluster_size)
-                root_mgmt.add([self.path, cluster_n.cluster_list])
-
-```
-
-- DirPrepare Class
-```python
-from endian import to_le
-from file_manage import FileManage
-
-
-class dir_prepare:
-    def __init__(self, filename, br, dir_offset):
-        self.result_list = list()
-
-        offset = dir_offset
-        while True:
-            with open(filename, 'rb') as f:
-                f.seek(offset)
-                byte_array = f.read(32)
-            offset += 32
-
-            if byte_array == bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'):
-                break
-
-            name = byte_array[:8].decode('latin-1').encode("utf-8").strip()
-            attribute = byte_array[11]
-            first_cluster = int(to_le(byte_array[26:28] + byte_array[20:22]), 16)
-            dir_offset = br.data_region + ((first_cluster - br.cluster_num_of_root_dir) * br.cluster_size)
-            file_size = int(to_le(byte_array[28:]), 16)
-            extension = byte_array[8:11].decode('latin-1').encode("utf-8").strip()
-            file_manage = FileManage(name, attribute, first_cluster, dir_offset, file_size, extension)
-
-            self.result_list.append(file_manage)
-
-```
-
-- FileManage Class
-```python
-class FileManage:
-    def __init__(self, name, attribute, first_cluster, dir_offset, file_size, extension):
-        self.name = name
-        self.attribute = attribute
-        self.first_cluster = first_cluster
-        self.dir_offset = dir_offset
-        self.file_size = file_size
-        self.extension = extension
-
-```
-
-- Node Class (Node, Node Manage)
-```python
-import os
-
-
-class Node:
-    def __init__(self, data, next=None):
-        self.data = data
-        self.next = next
-
-
-class NodeMgmt:
-    def __init__(self, data):
-        self.head = Node(data)
-        self.path = ""
-
-    def add(self, data):
-        if self.head == "":
-            self.head = Node(data)
-        else:
-            node = self.head
-            while node.next:
-                node = node.next
-            node.next = Node(data)
-
-    def all_files_export(self, filename, exportPath):
-        node = self.head
-        while node.next:
-            path, data = node.data
-            destination_dir = os.path.join(exportPath,  path[1:])
-            if not os.path.exists(destination_dir) and not data:
-                os.makedirs(destination_dir)
-            elif data:
-                byte_array = bytearray()
-                for dir_offset, cluster_size in data:
-                    with open(filename, 'rb') as f:
-                        f.seek(int(dir_offset, 16))
-                        byte_array += f.read(int(cluster_size, 16))
-                    with open(destination_dir, "wb") as f:
-                        f.write(byte_array)
-
-            node = node.next
-
-    def selected_file_export(self, filename, dataPath, exportPath):
-        node = self.head
-        while node.next:
-            path, data = node.data
-            destination_dir = os.path.join(exportPath,  path[1:])
-
-            if not os.path.exists(destination_dir) and not data:
-                os.makedirs(destination_dir)
-            elif data and path == dataPath:
-                byte_array = bytearray()
-                for dir_offset, cluster_size in data:
-                    with open(filename, 'rb') as f:
-                        f.seek(int(dir_offset, 16))
-                        byte_array += f.read(int(cluster_size, 16))
-                with open(destination_dir, "wb") as f:
-                    f.write(byte_array)
-                break
-
-            node = node.next
-
-```
-</div>
-</details>
 
 ### Main 함수 및 동작 확인
 - 메인화면 실행(특정 경로파일만 가져오기)

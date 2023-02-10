@@ -1,6 +1,6 @@
 import sys
 
-from fat32.interface.data_store import *
+from fat32.interface.dataStore import *
 
 
 def main():
