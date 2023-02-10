@@ -6,37 +6,37 @@
 - Data Area (Directory Entry)
 - Main 함수 및 동작확인
 
-### Architecture
+### Architecture & Code
 - FAT32
   - function (common)
-    - [byteBuffer](): 데이터를 한 곳에서 다른 한 곳으로 전송하는 동안 일시적으로 그 데이터를 보관하는 임시 메모리 공간이다.
-    - [fileIO](): 파일을 'rb', 즉 byte로된 파일을 읽거나 'wb' byte로 된 파일을 쓰기위한 function이다. (이때, seek과 read를 사용)
+    - [byteBuffer](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/function/byteBuffer.py): 데이터를 한 곳에서 다른 한 곳으로 전송하는 동안 일시적으로 그 데이터를 보관하는 임시 메모리 공간이다.
+    - [fileIO](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/function/fileIo.py): 파일을 'rb', 즉 byte로된 파일을 읽거나 'wb' byte로 된 파일을 쓰기위한 function이다. (이때, seek과 read를 사용)
   - interface
-    - [dataStore](): filename을 input으로 갖고 FileSystem으로 변환해주는 클래스로, 이때 파일과 디렉토리를 갖고 있는 정상적인 node를 FileSystem에 전달해준다.
-    - [file](): fileSystem의 get_node함수를 통하여 filePath의 해당 노드를 return 받으며 해당 노드의 데이터와 경로를 가지고 사용자의 시스템 경로에 해당하는 곳에 export 해줄 수 있다.
-    - [fileSystem](): root_mgmt를 input으로 갖고 filePath를 통하여 해당 노드를 return해주는 get_node함수를 호출할 수 있다.
+    - [dataStore](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/interface/dataStore.py): filename을 input으로 갖고 FileSystem으로 변환해주는 클래스로, 이때 파일과 디렉토리를 갖고 있는 정상적인 node를 FileSystem에 전달해준다.
+    - [file](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/interface/file.py): fileSystem의 get_node함수를 통하여 filePath의 해당 노드를 return 받으며 해당 노드의 데이터와 경로를 가지고 사용자의 시스템 경로에 해당하는 곳에 export 해줄 수 있다.
+    - [fileSystem](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/interface/fileSystem.py): root_mgmt를 input으로 갖고 filePath를 통하여 해당 노드를 return해주는 get_node함수를 호출할 수 있다.
   - layer_1
     - domain
-      - [bootRecord](): FAT32파일의 bootRecord의 속성을 알려주는 객체이다.
-      - [directoryEntry](): directoryEntryElements의 집합 객체이다.
-      - [directoryEntryElements](): dir_offset을 통해 만들어 낸 데이터의 속성을 가진 객체이다.
-      - [fatTable](): 데이터 영역의 클러스터 할당 상태를 알려주는 테이블 객체이다.
+      - [bootRecord](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/layer_1/domain/bootRecord.py): FAT32파일의 bootRecord의 속성을 알려주는 객체이다.
+      - [directoryEntry](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/layer_1/domain/directoryEntry.py): directoryEntryElements의 집합 객체이다.
+      - [directoryEntryElements](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/layer_1/domain/directoryEntryElements.py): dir_offset을 통해 만들어 낸 데이터의 속성을 가진 객체이다.
+      - [fatTable](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/layer_1/domain/fatTable.py): 데이터 영역의 클러스터 할당 상태를 알려주는 테이블 객체이다.
     - service (모두 filename을 input으로 가진다.)
-      - [bootRecordService](): bootRecord 객체를 control할 수 있는 서비스 객체이다.
-      - [directoryEntryService](): directoryEntry 객체를 control할 수 있는 서비스 객체이다.
-      - [fatTableService](): fatTable 객체를 control할 수 있는 서비스 객체이다.
+      - [bootRecordService](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/layer_1/service/bootRecordService.py): bootRecord 객체를 control할 수 있는 서비스 객체이다.
+      - [directoryEntryService](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/layer_1/service/directoryEntryService.py): directoryEntry 객체를 control할 수 있는 서비스 객체이다.
+      - [fatTableService](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/layer_1/service/fatTableService.py): fatTable 객체를 control할 수 있는 서비스 객체이다.
   - layer_2
     - domain
-      - [clusterChain](): 하나의 파일이 할당하는 클러스터의 양과 (클러스터의 offset, size)를 관리하기 위한 객체이다.
-      - [node](): 노드를 구성하는 속성을 알려주는 객체이다.
-      - [nodeStream](): 노드관리와 path를 관리하는 속성을 가진 객체이다.
+      - [clusterChain](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/layer_2/domain/clusterChain.py): 하나의 파일이 할당하는 클러스터의 양과 (클러스터의 offset, size)를 관리하기 위한 객체이다.
+      - [node](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/layer_2/domain/node.py): 노드를 구성하는 속성을 알려주는 객체이다.
+      - [nodeStream](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/layer_2/domain/nodeStream.py): 노드관리와 path를 관리하는 속성을 가진 객체이다.
     - service
-      - [clusterChainService](): clusterChain 객체를 control하는 서비스 객체이다.
-      - [nodeService](): node 객체를 control하는 서비스 객체
-      - [nodeStreamService](): nodeStream객체를 control하는 서비스 객체
+      - [clusterChainService](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/layer_2/service/clusterChainService.py): clusterChain 객체를 control하는 서비스 객체이다.
+      - [nodeService](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/layer_2/service/nodeService.py): node 객체를 control하는 서비스 객체
+      - [nodeStreamService](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/layer_2/service/nodeStreamService.py): nodeStream객체를 control하는 서비스 객체
   - layer_3
     - service
-      - [fatSystemService](): layer1, 2에 있는 서비스를 통하여 전반적인 fat 파일과 디렉토리를 구성하는 Node를 생성해주는 서비스 객체이다.
+      - [fatSystemService](https://github.com/yongjae5717/FAT32_filesystem/blob/main/fat32/layer_3/service/fatSystemService.py): layer1, 2에 있는 서비스를 통하여 전반적인 fat 파일과 디렉토리를 구성하는 Node를 생성해주는 서비스 객체이다.
 
 ### Boot Record
 ![](fat32/images/BootRecord.png)
