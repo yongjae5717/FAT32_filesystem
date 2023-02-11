@@ -9,7 +9,6 @@ class FatTableService:
         self.fat_table = FatTable()
 
     def make_fat_table(self, boot_record):
-
         offset = boot_record.fat_region
         finish_count = boot_record.num_of_sector_FAT_area // 4 + 1
         flag = 0

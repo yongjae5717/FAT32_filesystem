@@ -6,9 +6,9 @@ from fat32.layer_2.service.nodeStreamService import *
 class FatSystemService:
     def __init__(self, filename):
         self.boot_record_service = BootRecordService(filename)
-        self.fat_table_service = FatTableService (filename)
-        self.node_stream_service = NodeStreamService (filename)
-        self.directory_entry_service = DirectoryEntryService (filename)
+        self.fat_table_service = FatTableService(filename)
+        self.node_stream_service = NodeStreamService(filename)
+        self.directory_entry_service = DirectoryEntryService(filename)
 
     def BuildFileSystem(self):
         self.boot_record = self.boot_record_service.make_boot_record ()
