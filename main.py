@@ -9,6 +9,8 @@ def main():
     exportPath = "AllFiles"
     """
 
+    global filename, filepath, export_path
+
     try:
         filename, filepath, export_path = sys.argv[1], sys.argv[2], sys.argv[3]
     except IndexError as e:
