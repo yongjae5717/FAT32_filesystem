@@ -1,0 +1,19 @@
+import os
+from fat32_ver2.function.fileIo import *
+
+
+class File:
+    def __init__(self, node):
+        self.file = node
+
+    def export_to(self, filename, exportPath):
+        byte_array = bytearray()
+        path, data = self.file.data
+        destination_dir = os.path.join(exportPath, path[1:])
+
+        for dir_offset, cluster_size in data:
+            byte_array += read_file(filename, dir_offset, cluster_size)
+        write_file(destination_dir, byte_array)
+
+    def data(self):
+        return self.file.data[1]
